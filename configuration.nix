@@ -34,6 +34,9 @@
     tcpdump
     nmap
     dnsutils
+    sqlite
+    darkstat
+    vnstat
   ];
 
   # Enable the OpenSSH daemon.
