@@ -37,6 +37,7 @@
     sqlite
     darkstat
     vnstat
+    kea
   ];
 
   # Enable the OpenSSH daemon.
@@ -54,18 +55,58 @@
   networking.interfaces.enp2s0.ipv4.addresses = [ { address = "192.168.5.1"; prefixLength = 24; } ];
 
   # NAT 
-  #networking.firewall.enable = false;
+  networking.firewall.enable = true;
+  networking.firewall.trustedInterfaces = [ "enp2s0" ];
   networking.nat.enable = true;
   networking.nat.externalInterface = "enp1s0";
   networking.nat.internalIPs = [ "192.168.5.0/24" ];
  
   # DHCPD, DNS
+  services.kea.dhcp4.enable = true;
+  services.kea.dhcp4.settings = {
+    interfaces-config = {
+      interfaces = [
+        "enp2s0"
+      ];
+    };
+    lease-database = {
+      name = "/var/lib/kea/dhcp4.leases";
+      persist = true;
+      type = "memfile";
+    };
+    rebind-timer = 2000;
+    renew-timer = 1000;
+    option-data = [ {
+      name = "domain-name-servers";
+      data = "192.168.5.1";
+    } ];
+    subnet4 = [
+      {
+        id = 1;
+        pools = [
+          {
+            pool = "192.168.5.32 - 192.168.5.240";
+          }
+        ];
+        subnet = "192.168.5.0/24";
+        option-data = [ {
+          name = "routers";
+          data = "192.168.5.1";
+        } ];
+      }
+    ];
+    valid-lifetime = 4000;
+  };
+
+  networking.hosts = {
+    "192.168.5.1" = [ "ayos.local" ];
+  };
+  networking.stevenblack.enable = true;
   services.dnsmasq.enable = true;
   services.dnsmasq.settings = {
-    interface = "enp2s0";
-    dhcp-range = [ "192.168.5.32,192.168.5.250" ];
+    listen-address = "127.0.0.1,192.168.5.1";
   };
- 
+
   # This option defines the first version of NixOS you have installed on this particular machine,
   # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.
   #
