@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en" class="dark:bg-black">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="shortcut icon" href="/assets/favicon-99f36f24.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon-a8567a94.png" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/daisyui@3.7.3/dist/full.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+    
+    <!-- <link rel="manifest" href="manifest.json" /> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ayos</title>
+    <script type="module" crossorigin src="/assets/index-f25c08f3.js"></script>
+    <link rel="stylesheet" href="/assets/index-1325a754.css">
+  </head>
+  <body>
+    <div
+      id="internet-status"
+      class="flex-1 p-4 dark:bg-zinc-800 border-b dark:border-zinc-700 shadow-sm"
+    ></div>
+
+    <div
+      id="bandwidth-header"
+      class="text-xl p-4 font-semibold dark:bg-black bg-gray-100 border-b dark:border-zinc-700 shadow-sm"
+    >
+      Bandwidth
+    </div>
+
+    <div
+      id="bandwidth-spinner"
+      class="p-4 dark:bg-zinc-800 border-b dark:border-zinc-700 shadow-sm"
+    >
+      <table class="table-fixed">
+        <thead>
+          <tr class="text-left py-0">
+            <th class="font-normal"></th>
+            <th class="text-right font-normal text-blue-900 dark:text-sky-300">
+              <ion-icon class="w-5" name="caret-down-outline"></ion-icon>
+            </th>
+            <th
+              class="text-right font-normal text-orange-700 dark:text-orange-300"
+            >
+              <ion-icon class="w-5" name="caret-up-outline"></ion-icon>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="font-medium dark:text-gray-200">Current</td>
+            <td
+              id="bw-ds-current"
+              class="p-1 w-32 text-right text-blue-900 dark:text-sky-300 font-semibold"
+            ></td>
+            <td
+              id="bw-us-current"
+              class="p-1 w-32 text-right text-orange-700 dark:text-orange-300 font-semibold"
+            ></td>
+          </tr>
+          <tr>
+            <td class="font-medium dark:text-gray-200">Today</td>
+            <td
+              id="bw-ds-today"
+              class="p-1 w-32 text-right text-blue-900 dark:text-sky-300 font-semibold"
+            ></td>
+            <td
+              id="bw-us-today"
+              class="w-32 text-right text-orange-700 dark:text-orange-300 font-semibold"
+            ></td>
+          </tr>
+          <tr>
+            <td class="font-medium dark:text-gray-200" id="month">Month</td>
+            <td
+              id="bw-ds-month"
+              class="w-32 text-right text-blue-900 dark:text-sky-300 font-semibold"
+            ></td>
+            <td
+              id="bw-us-month"
+              class="w-32 text-right text-orange-700 dark:text-orange-300 font-semibold"
+            ></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div
+      id="devices-total"
+      class="text-xl p-4 font-semibold bg-gray-100 dark:bg-black border-b dark:border-zinc-700 shadow-sm"
+    >
+      Devices Online
+    </div>
+
+    <div id="devices-spinner">
+      <div
+        id="devices-online"
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 m-2"
+      ></div>
+    </div>
+
+    <dialog id="modal" class="modal modal-bottom sm:modal-middle">
+      <div class="modal-box dark:bg-zinc-800">
+        <div id="edit-device" class="flex columns-3 p-0">
+          <div class="w-full">
+            <form method="dialog">
+              <button
+                id="btn-cancel"
+                class="text-blue-500 dark:text-sky-300 text-base font-light"
+              >
+                Close
+              </button>
+            </form>
+          </div>
+          <div class="w-full whitespace-nowrap">
+            <h3 class="font-semibold text-base dark:text-zinc-200">
+              Device Management
+            </h3>
+          </div>
+          <div class="w-full text-right">
+            <form method="dialog">
+              <button
+                id="btn-edit-save"
+                class="text-blue-500 dark:text-sky-300 text-base font-medium"
+                disabled
+              ></button>
+            </form>
+          </div>
+        </div>
+
+        <div class="form-control">
+          <div class="pt-8 text-center">
+            <div
+              id="modal-name-header"
+              class="font-semibold text-xl dark:text-zinc-200"
+            ></div>
+            <p id="modal-ip" class="pb-4 text-center dark:text-zinc-200"></p>
+          </div>
+        </div>
+
+        <div class="text-gray-700 dark:text-zinc-200 py-4">Restrictions</div>
+        <div id="pc-services-list"></div>
+
+        <div class="pb-4"></div>
+      </div>
+    </dialog>
+
+    <dialog id="modal-icon" class="modal modal-bottom sm:modal-middle">
+      <div class="modal-box h-full dark:bg-zinc-900">
+        <div id="update-icon" class="flex columns-3 p-0">
+          <div class="w-full">
+            <form method="dialog">
+              <button
+                id="btn-cancel"
+                class="text-blue-500 dark:text-sky-300 text-base font-light"
+              >
+                Cancel
+              </button>
+            </form>
+          </div>
+          <div class="w-full whitespace-nowrap">
+            <h3
+              id="modal-name-header"
+              class="font-semibold text-base dark:text-zinc-200"
+            >
+              Update Device Icon
+            </h3>
+          </div>
+          <div class="w-full text-right">
+            <button
+              id="btn-icon-save"
+              class="text-blue-500 dark:text-sky-300 text-base font-medium"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+
+        <div class="p-4"></div>
+
+        <div class="form-control pt-10">
+          <form
+            id="form-icon-configuration"
+            class="flex items-center space-x-6"
+          >
+            <label class="block">
+              <span class="sr-only">Choose image</span>
+              <input
+                type="file"
+                id="icon-file"
+                name="icon-file"
+                class="block w-full text-sm text-gray-500 dark:text-sky-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-normal file:bg-gray-100 dark:file:bg-gray-700 file:text-blue-500 dark:file:text-sky-300 hover:file:bg-gray-200 dark:hover:file:bg-gray-600"
+              />
+            </label>
+          </form>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- put some padding for the tabbed navigation -->
+    <div class="p-12">
+      <ul
+        id="nav-list"
+        class="flex bg-gray-100 dark:bg-black shadow-md fixed inset-x-0 bottom-0"
+      >
+        <li class="flex-1 mr-2">
+          <a
+            class="text-center block py-2 px-4 text-xs text-orange-700 dark:text-orange-300"
+            href="/"
+          >
+            <img
+              src="/assets/logo-aae13a23.png"
+              class="center-image"
+              width="32"
+              height="32"
+            />
+            Home
+          </a>
+        </li>
+        <li class="flex-1 mr-2">
+          <a
+            class="text-center block hover:border-gray-200 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-900 py-2 px-4 text-xs"
+            href="vpn.html"
+          >
+            <ion-icon style="font-size: 30px" name="lock-closed"></ion-icon
+            ><br />
+            VPN
+          </a>
+        </li>
+        <li class="flex-1 mr-2">
+          <a
+            class="text-center block hover:border-gray-200 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-900 py-2 px-4 text-xs"
+            href="privacy.html"
+            ><ion-icon style="font-size: 30px" name="eye-off"></ion-icon><br />
+            Privacy</a
+          >
+        </li>
+        <li class="flex-1 mr-2">
+          <a
+            class="text-center block hover:border-gray-200 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-900 py-2 px-4 text-xs"
+            href="firewall.html"
+          >
+            <ion-icon style="font-size: 30px" name="flame"></ion-icon><br />
+            Firewall
+          </a>
+        </li>
+        <li class="flex-1 mr-2">
+          <a
+            class="text-center block hover:border-gray-200 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-900 py-2 px-4 text-xs"
+            href="system.html"
+            ><ion-icon style="font-size: 30px" name="cog"></ion-icon><br />
+            System</a
+          >
+        </li>
+      </ul>
+    </div>
+    <script
+      type="module"
+      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"
+    ></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+
+  </body>
+</html>
