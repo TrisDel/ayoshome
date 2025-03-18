@@ -14,7 +14,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "ayoshome"; # Define your hostname.
+  networking.hostName = "ayos"; # Define your hostname.
   # Set your time zone.
   time.timeZone = "Europe/Istanbul";
 
@@ -67,6 +67,19 @@
   networking.nat.enable = true;
   networking.nat.externalInterface = "enp1s0";
   networking.nat.internalIPs = [ "192.168.5.0/24" ];
+
+  # DARKSTAT
+  systemd.services.darkstat = {
+    enable = true;
+    description = "darkstat for Ayos";
+    serviceConfig = {
+      Type = "forking";
+      ExecStart = "/run/current-system/sw/bin/darkstat -i enp2s0 -l 192.168.5.0/24 --local-only";
+      ExecStop = "pkill darkstat";
+      Restart = "on-failure";
+    };
+    wantedBy = [ "multi-user.target" ];
+  };
  
   # DHCPD, DNS
   services.kea.dhcp4.enable = true;
@@ -99,6 +112,10 @@
         option-data = [ {
           name = "routers";
           data = "192.168.5.1";
+          }
+          {
+          name = "domain-search";
+          data = "lan"; 
         } ];
       }
     ];
@@ -106,13 +123,14 @@
   };
 
   networking.hosts = {
-    "192.168.5.1" = [ "ayos.local" ];
+    "192.168.5.1" = [ "ayos.lan" "ayos" ];
   };
   networking.stevenblack.enable = true;
   services.dnsmasq.enable = true;
   services.dnsmasq.settings = {
     listen-address = "127.0.0.1,192.168.5.1";
   };
+  services.resolved.domains = [ "lan" ];
 
   # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
   system.stateVersion = "24.11"; # Did you read the comment?
