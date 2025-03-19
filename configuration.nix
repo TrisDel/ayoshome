@@ -1,9 +1,11 @@
-# Edit this configuration file to define what should be installed on
-# your system. Help is available in the configuration.nix(5) man page, on
-# https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
-
 { config, lib, pkgs, ... }:
 
+let
+  perlEnv = pkgs.perl.withPackages (p: with p; [
+    JSON
+    # Add any other Perl modules you need here
+  ]);
+in
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -41,6 +43,7 @@
     lighttpd
     nodejs_22
     pm2
+    perlEnv # Include the Perl environment with the specified modules
   ];
 
   # Enable the OpenSSH daemon.
@@ -61,7 +64,7 @@
   networking.interfaces.enp2s0.useDHCP = false;
   networking.interfaces.enp2s0.ipv4.addresses = [ { address = "192.168.5.1"; prefixLength = 24; } ];
 
-  # NAT 
+  # NAT
   networking.firewall.enable = true;
   networking.firewall.trustedInterfaces = [ "enp2s0" ];
   networking.nat.enable = true;
@@ -80,7 +83,20 @@
     };
     wantedBy = [ "multi-user.target" ];
   };
- 
+
+  # VNSTATD
+  systemd.services.vnstatd = {
+    enable = true;
+    description = "vnstatd for Ayos";
+    serviceConfig = {
+      Type = "forking";
+      ExecStart = "/run/current-system/sw/bin/vnstatd -d";
+      ExecStop = "pkill vnstatd";
+      Restart = "on-failure";
+    };
+    wantedBy = [ "multi-user.target" ];
+  };
+
   # DHCPD, DNS
   services.kea.dhcp4.enable = true;
   services.kea.dhcp4.settings = {
@@ -115,7 +131,7 @@
           }
           {
           name = "domain-search";
-          data = "lan"; 
+          data = "lan";
         } ];
       }
     ];
@@ -134,6 +150,4 @@
 
   # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
   system.stateVersion = "24.11"; # Did you read the comment?
-
 }
-
