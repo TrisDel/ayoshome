@@ -44,6 +44,8 @@ in
     nodejs_22
     pm2
     perlEnv # Include the Perl environment with the specified modules
+    websocketd
+    sysstat
   ];
 
   # Enable the OpenSSH daemon.
@@ -62,11 +64,16 @@ in
 
   # LAN interface
   networking.interfaces.enp2s0.useDHCP = false;
-  networking.interfaces.enp2s0.ipv4.addresses = [ { address = "192.168.5.1"; prefixLength = 24; } ];
+  networking.bridges = {
+    "br0" = {
+      interfaces = [ "enp2s0" ];
+    };
+  };
+  networking.interfaces.br0.ipv4.addresses = [ { address = "192.168.5.1"; prefixLength = 24; } ];
 
   # NAT
   networking.firewall.enable = true;
-  networking.firewall.trustedInterfaces = [ "enp2s0" ];
+  networking.firewall.trustedInterfaces = [ "enp2s0" "br0" ];
   networking.nat.enable = true;
   networking.nat.externalInterface = "enp1s0";
   networking.nat.internalIPs = [ "192.168.5.0/24" ];
@@ -77,7 +84,7 @@ in
     description = "darkstat for Ayos";
     serviceConfig = {
       Type = "forking";
-      ExecStart = "/run/current-system/sw/bin/darkstat -i enp2s0 -l 192.168.5.0/24 --local-only";
+      ExecStart = "/run/current-system/sw/bin/darkstat -i br0 -l 192.168.5.0/24 --local-only";
       ExecStop = "pkill darkstat";
       Restart = "on-failure";
     };
@@ -102,7 +109,7 @@ in
   services.kea.dhcp4.settings = {
     interfaces-config = {
       interfaces = [
-        "enp2s0"
+        "br0"
       ];
     };
     lease-database = {
